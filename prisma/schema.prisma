@@ -17,7 +17,77 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
+  emailVerified DateTime?
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  searches      Search[]
+  comments      Comment[]
+  votes         Vote[]
+}
+
+model Search {
+  id          String   @id @default(cuid())
+  query       String
+  createdAt   DateTime @default(now())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  results     Result[]
+}
+
+model Result {
+  id            String       @id @default(cuid())
+  searchId      String
+  search        Search       @relation(fields: [searchId], references: [id], onDelete: Cascade)
+  platform      Platform
+  originalId    String       
+  title         String?
+  content       String?
+  url           String?
+  author        String?
+  publishedAt   DateTime?
+  engagement    Json?        
+  summary       String?      
+  sentiment     Sentiment    @default(NEUTRAL)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  comments      Comment[]
+
+  @@unique([platform, originalId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  resultId  String
+  result    Result   @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  votes     Vote[]
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  isUpvote  Boolean
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+}
+
+enum Platform {
+  YOUTUBE
+  REDDIT
+  TWITTER
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
 }

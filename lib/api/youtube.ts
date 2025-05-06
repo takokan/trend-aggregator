@@ -37,12 +37,12 @@ export async function searchYoutube(query: string, maxResults = 10) {
 
     return videoResponse.data.items.map((item: YouTubeVideoItem) => ({
       platform: "YOUTUBE",
-      orignalId: item.id,
+      originalId: item.id,
       title: item.snippet.title,
       content: item.snippet.description,
       author: item.snippet.channelTitle,
       publishedAt: new Date(item.snippet.publishedAt),
-      url: `https://www.youtube.com/watch=?v=${item.id}`,
+      url: `https://www.youtube.com/watch?v=${item.id}`,
       engagement: {
         views: parseInt(item.statistics.viewCount, 10),
         likes: parseInt(item.statistics.likeCount, 10),
