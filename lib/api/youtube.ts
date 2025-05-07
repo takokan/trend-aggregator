@@ -6,13 +6,17 @@ import {
   YouTubeVideoResponse, 
   YouTubeCommentItem, 
   YouTubeCommentResponse 
-  } from "@/types/youtube";
+} from "@/types/youtube";
+import { RawSearchResult, Platform } from "@/types/search";
 
 const YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3";
 const API_KEY = process.env.YOUTUBE_API_KEY;
 
+if (!API_KEY) {
+  throw new Error("YOUTUBE_API_KEY is not set in environment variables");
+}
 
-export async function searchYoutube(query: string, maxResults = 10) {
+export async function searchYoutube(query: string, maxResults = 10): Promise<RawSearchResult[]> {
   try {
     const searchResponse = await axios.get<YouTubeSearchResponse>(`${YOUTUBE_API_URL}/search`, {
       params: {
@@ -36,7 +40,7 @@ export async function searchYoutube(query: string, maxResults = 10) {
     })
 
     return videoResponse.data.items.map((item: YouTubeVideoItem) => ({
-      platform: "YOUTUBE",
+      platform: "YOUTUBE" as Platform,
       originalId: item.id,
       title: item.snippet.title,
       content: item.snippet.description,
@@ -50,7 +54,7 @@ export async function searchYoutube(query: string, maxResults = 10) {
       }
     }))
   } catch (error) {
-    console.error("Error searching Youtube", error);
+    console.error("Error searching YouTube:", error);
     return [];
   }
 }
@@ -75,7 +79,7 @@ export async function getYoutubeComments(videoId: string, maxResults = 10) {
         likesCount: parseInt(item.snippet.topLevelComment.snippet.likeCount, 10),
       }))
     } catch (error) {
-      console.error("Error fetching Youtube comments", error);  
+      console.error("Error fetching YouTube comments:", error);  
       return [];
     }
 }
